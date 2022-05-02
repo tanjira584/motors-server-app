@@ -25,10 +25,44 @@ async function run() {
             const motors = await cursor.toArray();
             res.send(motors);
         });
+        app.post("/motors", async (req, res) => {
+            const newMotor = req.body;
+            const result = await motorDelar.insertOne(newMotor);
+            res.send(result);
+        });
         app.get("/motor/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await motorDelar.findOne(query);
+            res.send(result);
+        });
+        app.delete("/motor/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await motorDelar.deleteOne(query);
+            res.send(result);
+        });
+        app.put("/motor/:id", async (req, res) => {
+            const id = req.params.id;
+            const { qty } = req.body;
+            const { delivered } = req.headers;
+            const query = { _id: ObjectId(id) };
+            const motor = await motorDelar.findOne(query);
+            const preQty = parseInt(motor.stock);
+            const updQty = delivered ? preQty - 1 : qty;
+
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateMotor = {
+                $set: {
+                    stock: updQty,
+                },
+            };
+            const result = await motorDelar.updateOne(
+                filter,
+                updateMotor,
+                options
+            );
             res.send(result);
         });
     } finally {
