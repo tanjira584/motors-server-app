@@ -25,11 +25,7 @@ async function run() {
             const motors = await cursor.toArray();
             res.send(motors);
         });
-        app.post("/motors", async (req, res) => {
-            const newMotor = req.body;
-            const result = await motorDelar.insertOne(newMotor);
-            res.send(result);
-        });
+
         app.get("/motor/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
