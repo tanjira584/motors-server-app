@@ -73,18 +73,6 @@ async function run() {
             });
             res.send({ accessToken });
         });
-        app.get("/my-items", verifyJwt, async (req, res) => {
-            const decodeEmail = req.decoded.email;
-            const email = req.query.email;
-            if (email === decodeEmail) {
-                const query = { dEmail: email };
-                const cursor = motorDelar.find(query);
-                const motors = await cursor.toArray();
-                res.send(motors);
-            } else {
-                res.status(403).send({ message: "Forbiden Access" });
-            }
-        });
     } finally {
     }
 }
