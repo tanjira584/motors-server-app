@@ -21,10 +21,28 @@ async function run() {
         await client.connect();
         const motorDelar = client.db("motorStore").collection("motor");
         app.get("/motors", async (req, res) => {
-            const query = {};
-            const cursor = motorDelar.find(query);
-            const motors = await cursor.toArray();
-            res.send(motors);
+            const qs = req.query;
+            const ex = await motorDelar
+                .find({
+                    $or: [
+                        { make: qs.make },
+                        { type: qs.type },
+                        { normal: { $lt: parseInt(qs.price) } },
+                        { model: qs.model },
+                        { transmission: qs.transmission },
+                        { color: qs.color },
+                        { fuelType: qs.fuel },
+                    ],
+                })
+                .toArray();
+            if (ex.length > 0) {
+                res.send(ex);
+            } else {
+                const query = {};
+                const cursor = motorDelar.find(query);
+                const motors = await cursor.toArray();
+                res.send(motors);
+            }
         });
         app.post("/motors", async (req, res) => {
             const newMotor = req.body;
